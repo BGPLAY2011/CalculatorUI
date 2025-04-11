@@ -2,35 +2,32 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.*;
 class CalculatorUI extends JFrame implements ActionListener {
     private JTextField display;
     private StringBuilder currentInput;
     private int firstNumber;
     private String operator;
-
+    private final String FILE_NAME = "last_result.txt";
     public CalculatorUI() {
         setTitle("Калькулятор");
         setSize(300, 400);
         setLayout(new BorderLayout());
-
         currentInput = new StringBuilder();
         firstNumber = 0;
         operator = "";
-
         display = new JTextField();
         add(display, BorderLayout.NORTH);
-
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(4, 4));
-
         String[] buttons = {
                 "7", "8", "9", "+",
                 "4", "5", "6", "-",
                 "1", "2", "3", "*",
                 "0", "=", "C", ":"
         };
-
         for (String text : buttons) {
             JButton button = new JButton(text);
             button.addActionListener(this);
@@ -38,6 +35,7 @@ class CalculatorUI extends JFrame implements ActionListener {
         }
         add(panel, BorderLayout.CENTER);
         setVisible(true);
+        loadLastResult();
     }
 
     @Override
@@ -66,6 +64,27 @@ class CalculatorUI extends JFrame implements ActionListener {
             currentInput.setLength(0);
             display.setText("");
         }
+    }
+    private void loadLastResult() {
+        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_NAME))) {
+            String lastResult = reader.readLine();
+            if (lastResult != null) {
+                display.setText(lastResult);
+                currentInput.append(lastResult);
+            }
+        } catch (IOException ex) {
+        }
+    }
+    {
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME))) {
+                    writer.write(display.getText());
+                } catch (IOException ex) {
+                    System.out.println("Ошибка при сохранении результата");
+                }
+            }
+        });
     }
     public static void main(String[] args) {
         new CalculatorUI();
