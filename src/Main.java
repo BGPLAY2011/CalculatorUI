@@ -67,10 +67,13 @@ class CalculatorUI extends JFrame implements ActionListener {
     }
     private void loadLastResult() {
         try (BufferedReader reader = new BufferedReader(new FileReader(FILE_NAME))) {
-            String lastResult = reader.readLine();
-            if (lastResult != null) {
-                display.setText(lastResult);
-                currentInput.append(lastResult);
+            String json = "{\"result\": \"" + display.getText() + "\"}";
+            if (json != null && json.contains(":")) {
+                int start = json.indexOf("\"", json.indexOf(":")) + 1;
+                int end = json.indexOf("\"", start);
+                String value = json.substring(start, end);
+                display.setText(value);
+                currentInput.append(value);
             }
         } catch (IOException ex) {
         }
